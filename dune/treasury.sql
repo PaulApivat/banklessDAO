@@ -1,3 +1,8 @@
+/* Queries to pull data from Dune Analytics specifically for Bankless DAO Treasury */
+/* Dune Dashboard: https://duneanalytics.com/paulapivat/WIP-Bankless-DAO-Treasury */
+/* etherscan: https://etherscan.io/address/0xf26d1Bb347a59F6C283C53156519cC1B1ABacA51 */
+
+
 /* ERC-20 Token Transfers */
 /* Bankless DAO Treasury */
 /* Join table for Token Symbol */
