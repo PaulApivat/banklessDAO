@@ -29,13 +29,27 @@ contract ZombieFeeding is ZombieFactory {
 
     // using storage vs. memory
     // ensure that only person who owns the zombie can feed it
-    function feedAndMultiply(uint _zombieId, uint _targetDna) public {
+    function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) public {
       require(msg.sender == zombieToOwner[_zombieId]);
       Zombie storage myZombie = zombies[_zombieId];
       // formula for calculating new zombie's DNA
       // inherit _createZombie from zombiefactory
       _targetDna = _targetDna % dnaModulus;
       uint newDna = (myZombie.dna + _targetDna) / 2;
-      _createZombie("NoName", newDna);
+      if (keccak256(abi.encodePacked(_species)) == keccak256(abi.encodePacked("kitty"))) {
+          newDna = newDna - newDna % 100 + 99;
+    }
+
+    _createZombie("NoName", newDna);
+
+    
+
   }
+
+    // define function here
+    function feedOnKitty(uint _zombieId, uint _kittyId) public {
+      uint kittyDna;
+      (,,,,,,,,,kittyDna) = kittyContract.getKitty(_kittyId);
+      feedAndMultiply(_zombieId, kittyDna);
+    }
 }
