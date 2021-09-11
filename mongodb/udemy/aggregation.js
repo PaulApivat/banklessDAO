@@ -120,3 +120,100 @@ db.bounties
     { $sort: { totalAmount: -1 } },
   ])
   .pretty();
+
+// Who submitted the most bounties? (in Season 1), in descending order
+
+db.bounties
+  .aggregate([
+    { $match: { season: 1 } },
+    {
+      $group: {
+        _id: { submittedBy: "$submittedBy.discordHandle" },
+        totalAmount: { $sum: 1 },
+      },
+    },
+    { $sort: { totalAmount: -1 } },
+  ])
+  .pretty();
+
+// What were all the bounty titles? (in Season 1)
+
+db.bounties
+  .aggregate([
+    { $match: { season: 1 } },
+    { $group: { _id: { title: "$title" } } },
+  ])
+  .pretty();
+
+// What were all the bounty titles? (in Season 1) -- UPPERCASE
+
+db.bounties
+  .aggregate([
+    { $match: { season: 1 } },
+    { $group: { _id: { title: { $toUpper: "$title" } } } },
+  ])
+  .pretty();
+
+// Uppercase first letter only (leave everyting else as written by user)
+db.bounties
+  .aggregate([
+    { $match: { season: 1 } },
+    {
+      $group: {
+        _id: {
+          title: {
+            $concat: [
+              { $toUpper: { $substrCP: ["$title", 0, 1] } },
+              {
+                $substrCP: [
+                  "$title",
+                  1,
+                  { $subtract: [{ $strLenCP: "$title" }, 1] },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    },
+  ])
+  .pretty();
+
+// use $project with $group
+// same as select() in dplyr - select the columns or key-value fields you want
+db.bounties.aggregate([
+  {
+    $project: {
+      _id: 0,
+      reward: 1,
+      createdBy: 1,
+      claimedBy: 1,
+      submittedBy: 1,
+      reviewedBy: 1,
+    },
+  },
+]);
+
+// pulling statusHistory, storing results in TWO arrays: status and setAt
+// CANNOT convert date to double
+db.bounties.aggregate([
+  {
+    $project: {
+      _id: 0,
+      reward: 1,
+      claimedBy: 1,
+      statusHistory: {
+        type: "Point",
+        array: ["$statusHistory.status", "$statusHistory.setAt"],
+      },
+      createdAt: {
+        $convert: {
+          input: "$createdAt",
+          to: "double",
+          onError: 0.0,
+          onNull: 0.0,
+        },
+      },
+    },
+  },
+]);
